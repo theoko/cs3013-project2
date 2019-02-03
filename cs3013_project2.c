@@ -14,28 +14,28 @@ asmlinkage long new_sys_cs3013_syscall1(void) {
   return 0;
 }
 
-asmlinkage long (*ref_sys_open)(const char *filename, int flags, mode_t mode) {
+asmlinkage long new_sys_open(const char *filename, int flags, mode_t mode) {
 
-int id = current_uid().val;
+	int id = current_uid().val;
 
-if (id >= 1000)
-	printk(KERN_INFO "User %d is opening the file %s", id, filename);	
+	if (id >= 1000)
+		printk(KERN_INFO "User %d is opening the file %s", id, filename);	
 
-return ref_sys_open(filename, flags, mode);
+	return ref_sys_open(filename, flags, mode);
 }
 
-asmlinkage long (*ref_sys_close)(int fileDesc) {
+asmlinkage long new_sys_close(int fileDesc) {
 
-int id = current_uid().val;
+	int id = current_uid().val;
 
-if (id >= 1000)
-	printk(KERN_INFO "User %d is closing the file %d", id, fileDesc);
+	if (id >= 1000)
+		printk(KERN_INFO "User %d is closing the file %d", id, fileDesc);
 
-return ref_sys_close(fileDesc);
+	return ref_sys_close(fileDesc);
 
 }
 
-asmlinkage long (*ref_sys_read)(int fileDesc, void *buf, size_t count) {
+asmlinkage long new_sys_read(int fileDesc, void *buf, size_t count) {
 
 	int file_size = ref_sys_read(fileDesc, buf, count);
 
@@ -45,13 +45,13 @@ asmlinkage long (*ref_sys_read)(int fileDesc, void *buf, size_t count) {
 		return file_size;
 
 	if (!file_size) {
-		printk(KERN_INFO "Nothing to read from file descriptor %d, fileDesc");
+		printk(KERN_INFO "Nothing to read from file descriptor %d", fileDesc);
 
 		return file_size;
 	} else {	
 
 		if (strstr((char *)buf, "VIRUS"))
-			printk(KERN_INFO "Detected 'VIRUS' while user %d was reading from file descriptor %d, id, fileDesc");
+			printk(KERN_INFO "Detected 'VIRUS' while user %d was reading from file descriptor %d", id, fileDesc);
 	}
 
 	return file_size;
