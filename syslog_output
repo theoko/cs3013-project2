@@ -1,0 +1,7 @@
+Feb  3 15:35:30 cs3013 kernel: [12673.992357] "'Hello world?!' More like 'Goodbye, world!' EXTERMINATE!" -- Dalek
+Feb  3 15:35:30 cs3013 kernel: [12673.992413] User 1000 is opening the file virus
+Feb  3 15:35:30 cs3013 kernel: [12673.992435] Detected 'VIRUS' while user 1000 was reading from file descriptor 3
+Feb  3 15:35:30 cs3013 kernel: [12673.992459] User 1000 is opening the file not_virus
+Feb  3 15:35:30 cs3013 kernel: [12673.992468] Nothing to read from file descriptor 4
+Feb  3 15:35:30 cs3013 kernel: [12673.992480] User 1000 is closing the file 3
+Feb  3 15:35:30 cs3013 kernel: [12673.994293] User 1000 is closing the file 4
