@@ -1,40 +1,51 @@
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/syscalls.h>
+#include <linux/pid.h>
+#include <linux/sched.h>
+#include <linux/list.h>
+
+typedef struct task_struct task_struct;
 
 unsigned long **sys_call_table;
 
 asmlinkage long (*ref_sys_cs3013_syscall2)(void);
 
-struct ancestry {
+typedef struct ancestry {
 	pid_t ancestors[10];
 	pid_t siblings[100];
 	pid_t children[100];
-};
+} ancestry;
 
 asmlinkage long new_sys_cs3013_syscall2(unsigned short *target_pid, struct ancestry *response) {
 	
-	unsigned short arg_pid;
-	ancestry newAnc;
-	ancestry* arg_ancestry;
-	arg_ancestry = &newAnc;
-	
-	pid_t* parentPtr = ancestry->ancestors;
-	pid_t* siblingPtr = ancestry->siblings;
-	pid_t* childPtr = ancestry->children;
+	task_struct* curr;
+	//struct task_struct* parent; 
+        task_struct* proc;
 
+	pid_t temp;
+
+	pid_t* parentPtr;
+        pid_t* siblingPtr;
+        pid_t* childPtr;
+
+	unsigned short arg_pid;
+	ancestry arg_anc;
+	ancestry* arg_ancestry;
+	arg_ancestry = &arg_anc;
+	
+        
 	if(copy_from_user(&arg_pid, target_pid, sizeof(unsigned short)))
 		return EFAULT;
 
-	if(copy_from_user(struct ancestry, response, sizeof(struct ancestry)))
+	if(copy_from_user(arg_ancestry, response, sizeof(struct ancestry)))
                 return EFAULT;
+			
 
-	struct task_struct* curr;
-	struct task_struct* parent; 
-	struct task_struct* proc;
+	parentPtr = arg_ancestry->ancestors;
+        siblingPtr = arg_ancestry->siblings;
+        childPtr = arg_ancestry->children;		
 
-
-	pid_t temp;
 	curr = pid_task(find_vpid(arg_pid), PIDTYPE_PID);
 							
 	//curr = curr->parent;
@@ -59,7 +70,7 @@ asmlinkage long new_sys_cs3013_syscall2(unsigned short *target_pid, struct ances
                 temp = proc->pid;
 
                 if (temp == 0) 
-                        return;
+                        return temp;
 
                 *siblingPtr = temp;
                 siblingPtr++;
