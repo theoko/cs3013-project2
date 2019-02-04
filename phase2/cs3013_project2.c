@@ -17,10 +17,30 @@ typedef struct ancestry {
 	pid_t children[100];
 } ancestry;
 
+void find_ancestors(task_struct *parent, pid_t *ances_ptr) {
+	
+	// PID of the current ancestor
+	pid_t tmp_pid = parent->pid;
+
+	// Add the PID to the array
+	*ances_ptr++ = tmp_pid;
+
+	printk(KERN_INFO "Has parent: %d!\n", tmp_pid);
+
+	// Check if PID is valid
+	if(tmp_pid == 1 || tmp_pid == 0) {
+		return;
+	}
+
+	parent = parent->parent;
+	find_ancestors(parent, ances_ptr);
+
+}
+
 asmlinkage long new_sys_cs3013_syscall2(unsigned short *target_pid, struct ancestry *response) {
 	
 	task_struct* curr;
-	//struct task_struct* parent; 
+	task_struct* parent; 
         task_struct* proc;
 
 	pid_t temp;
@@ -34,7 +54,6 @@ asmlinkage long new_sys_cs3013_syscall2(unsigned short *target_pid, struct ances
 	ancestry* arg_ancestry;
 	arg_ancestry = &arg_anc;
 	
-        
 	if(copy_from_user(&arg_pid, target_pid, sizeof(unsigned short)))
 		return EFAULT;
 
@@ -51,19 +70,26 @@ asmlinkage long new_sys_cs3013_syscall2(unsigned short *target_pid, struct ances
 	//curr = curr->parent;
                 
 	// Loop until PID is 1
-	while(curr->pid != 1) {
+	//while(curr->pid != 1) {
 			
-		temp = curr->parent->pid;			
+	//	temp = curr->parent->pid;			
 		
-		curr = curr->parent;
+	//	curr = curr->parent;
 		
-		*parentPtr = temp;
-		parentPtr++;
+	//	*parentPtr = temp;
+	//	parentPtr++;
 
-	}
+	//}
 
 	//*parentPtr = curr->parent->pid; // add init
 
+	printk(KERN_INFO "Process ID: %d\n", curr->pid);
+
+	if(curr->pid != 1) {
+		parent = curr->parent;
+		
+		find_ancestors(parent, parentPtr);
+	}
 
 	list_for_each_entry(proc, &(curr->sibling), sibling) {
 
@@ -75,6 +101,8 @@ asmlinkage long new_sys_cs3013_syscall2(unsigned short *target_pid, struct ances
                 *siblingPtr = temp;
                 siblingPtr++;
 
+		printk(KERN_INFO "%d's sibling: %d!\n", proc->pid, temp);
+								
         }
 
 	list_for_each_entry(proc, &(curr->children), sibling) {
@@ -83,6 +111,8 @@ asmlinkage long new_sys_cs3013_syscall2(unsigned short *target_pid, struct ances
 		*childPtr = temp;
 		
 		childPtr++;
+
+		printk(KERN_INFO "%d's child: %d!\n", proc->pid, temp);
 
 	}
 
