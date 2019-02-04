@@ -26,7 +26,7 @@ asmlinkage long new_sys_cs3013_syscall2(unsigned short *target_pid, struct ances
 	if(copy_from_user(&arg_pid, target_pid, sizeof(unsigned short)))
 		return EFAULT;
 
-	if(copy_from_user(ancestry, response, sizeof(ancestry)))
+	if(copy_from_user(struct ancestry, response, sizeof(struct ancestry)))
                 return EFAULT;
 
 	struct task_struct* curr;
@@ -75,7 +75,7 @@ asmlinkage long new_sys_cs3013_syscall2(unsigned short *target_pid, struct ances
 
 	}
 
-	if(copy_to_user(response, arg_ancestry, sizeof(ancestry)))
+	if(copy_to_user(response, arg_ancestry, sizeof(struct ancestry)))
 		return EFAULT;
 
 

@@ -26,5 +26,5 @@ int main(int argc, char *argv[]) {
 	struct ancestry* proc = (struct ancestry*) malloc(sizeof(struct ancestry));
 	
 	printf("The return values of the system calls are:\n");
-	printf("\tcs3013_syscall2: %ld\n", testCall2(&pid, &proc));
+	printf("\tcs3013_syscall2: %ld\n", testCall2(&pid, proc));
 }
