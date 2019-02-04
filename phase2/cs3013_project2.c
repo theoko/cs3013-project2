@@ -29,19 +29,31 @@ asmlinkage long new_sys_cs3013_syscall2(unsigned short *target_pid, struct ances
 	if(copy_from_user(ancestry, response, sizeof(ancestry)))
                 return EFAULT;
 
-	task_struct* curr;
-	task_struct* parent; 
-	task_struct* proc;
+	struct task_struct* curr;
+	struct task_struct* parent; 
+	struct task_struct* proc;
 
-
-	curr = pid_task(find_vpid(arg_pid), PIDTYPE_PID);
-
-	if (curr->pid != 1) {
-		parent = curr->parent;
-                //TODO: FIND PARENTS!
-	}
 
 	pid_t temp;
+	curr = pid_task(find_vpid(arg_pid), PIDTYPE_PID);
+							
+	//curr = curr->parent;
+                
+	// Loop until PID is 1
+	while(curr->pid != 1) {
+			
+		temp = curr->parent->pid;			
+		
+		curr = curr->parent;
+		
+		*parentPtr = temp;
+		parentPtr++;
+
+	}
+
+	//*parentPtr = curr->parent->pid; // add init
+
+
 	list_for_each_entry(proc, &(curr->sibling), sibling) {
 
                 temp = proc->pid;
@@ -55,7 +67,7 @@ asmlinkage long new_sys_cs3013_syscall2(unsigned short *target_pid, struct ances
         }
 
 	list_for_each_entry(proc, &(curr->children), sibling) {
-		
+									
 		temp = proc->pid;
 		*childPtr = temp;
 		
