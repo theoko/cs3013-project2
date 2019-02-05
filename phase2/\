@@ -74,7 +74,7 @@ asmlinkage long new_sys_cs3013_syscall2(unsigned short *target_pid, struct ances
 	// Pointer to children
 	childPtr = arg_ancestry->children;	
 
-	// Find task_struct of process using its PID
+	// Find task_struct of a process using its PID
 	curr = pid_task(find_vpid(arg_pid), PIDTYPE_PID);
 
 	// Print this process's ID
@@ -96,13 +96,10 @@ asmlinkage long new_sys_cs3013_syscall2(unsigned short *target_pid, struct ances
                 if (temp == 0) 
                         return temp;
 
-		// Store PID
                 *siblingPtr = temp;
-
-		// Increment pointer
                 siblingPtr++;
 
-		printk(KERN_INFO "%d's sibling: %d!\n", curr->pid, temp);
+		printk(KERN_INFO "%d's sibling: %d!\n", proc->pid, temp);
 								
         }
 
@@ -110,14 +107,11 @@ asmlinkage long new_sys_cs3013_syscall2(unsigned short *target_pid, struct ances
 	list_for_each_entry(proc, &(curr->children), sibling) {
 									
 		temp = proc->pid;
-		
-		// Store PID
 		*childPtr = temp;
 		
-		// Increment pointer
 		childPtr++;
 
-		printk(KERN_INFO "%d's child: %d!\n", curr->pid, temp);
+		printk(KERN_INFO "%d's child: %d!\n", proc->pid, temp);
 
 	}
 
