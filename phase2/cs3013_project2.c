@@ -26,7 +26,7 @@ void print_ancestors(task_struct *parent, pid_t *ancesPtr) {
 	*ancesPtr++ = anc_pid;
 
 	// Print parent to log
-	printk(KERN_INFO "Has parent: %d!\n", anc_pid);
+	printk(KERN_INFO "Parent: %d\n", anc_pid);
 
 	// Check if PID is valid
 	if(anc_pid == 0 || anc_pid == 1) {
@@ -57,7 +57,7 @@ asmlinkage long new_sys_cs3013_syscall2(unsigned short *target_pid, struct ances
 	ancestry arg_anc;
 	ancestry* arg_ancestry;
 	arg_ancestry = &arg_anc;
-	
+
 	if(copy_from_user(&arg_pid, target_pid, sizeof(unsigned short)))
 		return EFAULT;
 
@@ -88,6 +88,21 @@ asmlinkage long new_sys_cs3013_syscall2(unsigned short *target_pid, struct ances
 	
 	}
 
+	// Iterate over doubly linked list to find children
+        list_for_each_entry(proc, &(curr->children), sibling) {
+
+                temp = proc->pid;
+
+                // Store PID
+                *childPtr = temp;
+
+                // Increment pointer
+                childPtr++;
+
+                printk(KERN_INFO "%d's child: %d!\n", curr->pid, temp);
+
+        }
+
 	// Iterate over doubly linked list to find siblings
 	list_for_each_entry(proc, &(curr->sibling), sibling) {
 
@@ -105,21 +120,6 @@ asmlinkage long new_sys_cs3013_syscall2(unsigned short *target_pid, struct ances
 		printk(KERN_INFO "%d's sibling: %d!\n", curr->pid, temp);
 								
         }
-
-	// Iterate over doubly linked list to find children
-	list_for_each_entry(proc, &(curr->children), sibling) {
-									
-		temp = proc->pid;
-		
-		// Store PID
-		*childPtr = temp;
-		
-		// Increment pointer
-		childPtr++;
-
-		printk(KERN_INFO "%d's child: %d!\n", curr->pid, temp);
-
-	}
 
 	// Copy struct passed as argument from user
 	if(copy_to_user(response, arg_ancestry, sizeof(struct ancestry)))
